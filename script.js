@@ -235,6 +235,7 @@ function removeBlock(i) {
 
 	if (allBlocks[i].classList.contains("yellow")) {
 		allBlocks[i].classList.remove("yellow");
+		allBlocks[i].classList.add("orange");
 	} else if (allBlocks[i].classList.contains("orange")) {
 		allBlocks[i].classList.remove("orange");
 	} else {
