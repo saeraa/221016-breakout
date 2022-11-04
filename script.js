@@ -22,8 +22,8 @@ const BOARD_HEIGHT = 300;
 const BALL_SIZE = 20;
 const LIVES = 3;
 const BLOCKS_NUMBER = 15;
-const BALL_START_POSITION = [0, 190]; //!!!! CHANGING THIS
-// const BALL_START_POSITION = [270, 40];   // CHANGING THIS (old value here)
+//const BALL_START_POSITION = [0, 190]; //!!!! CHANGING THIS
+const BALL_START_POSITION = [270, 40]; // CHANGING THIS (old value here)
 const USER_START_POSITION = [230, 10];
 const blocks = [];
 
@@ -35,6 +35,10 @@ const startBtn = document.querySelector("#start");
 
 resetBtn.addEventListener("click", resetGame);
 startBtn.addEventListener("click", startGame);
+window.addEventListener("load", function () {
+	resetBtn.disabled = true;
+	currentLives = LIVES;
+});
 
 function mouseMoveHandler(e) {
 	let relativeX = e.clientX;
@@ -60,24 +64,35 @@ let player;
 let ball;
 
 function startGame() {
+	if (ball && player) {
+		ball.remove(".ball");
+		player.remove(".player");
+	}
+	resetBtn.disabled = false;
 	console.log("startGame");
 
-	ballPosition = BALL_START_POSITION;
+	// ballPosition = BALL_START_POSITION;
+
+	const randomStartPosition = Math.floor(Math.random() * BOARD_WIDTH);
+	ballPosition = [randomStartPosition, 40];
 	currentPosition = USER_START_POSITION;
 	xDirection = 2; // -2 åt vänster, 2 åt höger
 	yDirection = 2;
 	score = 0;
-	currentLives = LIVES;
+	// currentLives = LIVES;
 	createUser();
 	document.addEventListener("mousemove", mouseMoveHandler, false);
 	createBall();
-	// timerId = setInterval(moveBall, 10); //! -------- START BALL MOVING -----------
+	timerId = setInterval(moveBall, 10); //! -------- START BALL MOVING -----------
 	createBlocks();
+	drawLives();
 }
 
 function gameOver() {
 	document.removeEventListener("mousemove", mouseMoveHandler, false);
 	clearInterval(timerId);
+	currentLives--;
+
 	// document.removeEventListener("keydown", moveUser); //! REMOVE EVENT LIStener for keyboard
 
 	// const children = Array.from(grid.children);  //! remove blocks, paddle and ball
@@ -87,23 +102,29 @@ function gameOver() {
 function resetGame() {
 	console.log("resetGame");
 
+	ball.remove(".ball");
+	player.remove(".player");
+
 	timerId = null;
-	// xDirection = 2;  //! all of this should be uncommented
-	// yDirection = 2;
-	// score = 0;
-	// currentLives = LIVES;
-	// currentPosition = USER_START_POSITION;
-	// ballPosition = BALL_START_POSITION;
-	// drawLives();
-	// createBlocks();
+	xDirection = 2; //! all of this should be uncommented
+	yDirection = 2;
+	score = 0;
+	currentLives = LIVES;
+	currentPosition = USER_START_POSITION;
+	ballPosition = BALL_START_POSITION;
+	drawLives();
+	createBlocks();
 }
 
 function drawLives() {
+	console.log("currentLives", currentLives);
 	console.log("drawLives");
-
+	const currentLivesEl = [...document.querySelectorAll(".life")];
 	if (currentLives < LIVES) {
 		const amount = document.querySelectorAll(".life").length;
 		document.querySelectorAll(".life")[amount - 1].classList.remove("life");
+	} else if (currentLivesEl.length == 3) {
+		return;
 	} else {
 		for (let i = 0; i < currentLives; i++) {
 			const life = document.createElement("div");
@@ -123,7 +144,11 @@ class Block {
 }
 
 function createBlocks() {
-	console.log("createBlocks");
+	const blOCKS = [...document.querySelectorAll(".block")];
+	blOCKS.forEach((block) => {
+		block.remove(".block");
+	});
+	console.log(blOCKS);
 
 	blocks.length = 0;
 	for (let i = 0; i < BLOCKS_NUMBER; i++) {
@@ -228,6 +253,46 @@ function checkCollision() {
     if ball Y is ...
   */
 	for (let i = 0; i < blocks.length; i++) {
+		if (yDirection == -2) {
+			if (
+				ballPosition[0] >= blocks[i].topLeft[0] &&
+				ballPosition[0] <= blocks[i].topRight[0] &&
+				ballPosition[1] >= blocks[i].topLeft[1] &&
+				ballPosition[1] <= blocks[i].topRight[1]
+			) {
+				const allBlocks = Array.from(document.querySelectorAll(".block"));
+				allBlocks[i].classList.remove("block");
+				blocks.splice(i, 1);
+				changeDirection(false);
+				score++;
+				scoreEl.textContent = score;
+				if (score === BLOCKS_NUMBER) {
+					alert("You win!");
+					resetGame();
+				}
+				return;
+			}
+		}
+		if (yDirection == 2) {
+			if (
+				ballPosition[0] > blocks[i].bottomLeft[0] &&
+				ballPosition[0] < blocks[i].bottomRight[0] &&
+				ballPosition[1] + BALL_SIZE > blocks[i].bottomLeft[1] &&
+				ballPosition[1] < blocks[i].topLeft[1]
+			) {
+				const allBlocks = Array.from(document.querySelectorAll(".block"));
+				allBlocks[i].classList.remove("block");
+				blocks.splice(i, 1);
+				changeDirection(false);
+				score++;
+				scoreEl.textContent = score;
+				if (score === BLOCKS_NUMBER) {
+					alert("You win!");
+					resetGame();
+				}
+				return;
+			}
+		}
 		if (
 			ballPosition[0] > blocks[i].bottomLeft[0] &&
 			ballPosition[0] < blocks[i].bottomRight[0] &&
@@ -247,11 +312,31 @@ function checkCollision() {
 			return;
 		}
 	}
+	// for (let i = 0; i < blocks.length; i++) {
+	// 	if (
+	// 		ballPosition[0] > blocks[i].bottomLeft[0] &&
+	// 		ballPosition[0] < blocks[i].bottomRight[0] &&
+	// 		ballPosition[1] + BALL_SIZE > blocks[i].bottomLeft[1] &&
+	// 		ballPosition[1] < blocks[i].topLeft[1]
+	// 	) {
+	// 		const allBlocks = Array.from(document.querySelectorAll(".block"));
+	// 		allBlocks[i].classList.remove("block");
+	// 		blocks.splice(i, 1);
+	// 		changeDirection();
+	// 		score++;
+	// 		scoreEl.textContent = score;
+	// 		if (score === BLOCKS_NUMBER) {
+	// 			alert("You win!");
+	// 			resetGame();
+	// 		}
+	// 		return;
+	// 	}
+	// }
 
 	//gameboard
 	if (
 		ballPosition[0] >= BOARD_WIDTH - BALL_SIZE ||
-		// ballPosition[1] >= BOARD_HEIGHT - BALL_SIZE || //* when bollens position y är större eller lika med board height minus bollens diameter
+		//ballPosition[1] >= BOARD_HEIGHT - BALL_SIZE || //* when bollens position y är större eller lika med board height minus bollens diameter
 		ballPosition[0] <= 0
 	) {
 		changeDirection();
@@ -259,10 +344,11 @@ function checkCollision() {
 	}
 	if (ballPosition[1] >= BOARD_HEIGHT - BALL_SIZE) {
 		changeDirection(false);
+		//!changeDirection(false);
 		return;
 	}
 
-	if (ballPosition[1] <= 0) {
+	if (ballPosition[1] < BLOCK_HEIGHT) {
 		// --currentLives;
 		// drawLives();
 		gameOver();
