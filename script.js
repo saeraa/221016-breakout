@@ -73,7 +73,9 @@ function startGame() {
 
 	// ballPosition = BALL_START_POSITION;
 
-	const randomStartPosition = Math.floor(Math.random() * BOARD_WIDTH);
+	const randomStartPosition = Math.floor(
+		Math.random() * BOARD_WIDTH - BALL_SIZE
+	);
 	ballPosition = [randomStartPosition, 40];
 	currentPosition = USER_START_POSITION;
 	xDirection = 2; // -2 åt vänster, 2 åt höger
@@ -161,11 +163,20 @@ function createBlocks() {
 	addBlocks();
 }
 
+15 / 0, 6;
+
 function addBlocks() {
 	console.log("addblocks");
 	for (let i = 0; i < BLOCKS_NUMBER; i++) {
 		const block = document.createElement("div");
 		block.classList.add("block");
+
+		// lägg till gul på första 1/3, orange på 2/3, röd på sista
+		if (i < BLOCKS_NUMBER / 3) {
+			block.classList.add("yellow");
+		} else if (i < (BLOCKS_NUMBER / 3) * 2) {
+			block.classList.add("orange");
+		}
 		block.style.left = blocks[i].bottomLeft[0] + "px";
 		block.style.bottom = blocks[i].bottomLeft[1] + "px";
 		grid.appendChild(block);
@@ -219,6 +230,21 @@ function drawBall() {
 
 // document.addEventListener("keydown", moveUser); //* temporarily disabling keyboard movement
 
+function removeBlock(i) {
+	const allBlocks = Array.from(document.querySelectorAll(".block"));
+
+	if (allBlocks[i].classList.contains("yellow")) {
+		allBlocks[i].classList.remove("yellow");
+	} else if (allBlocks[i].classList.contains("orange")) {
+		allBlocks[i].classList.remove("orange");
+	} else {
+		allBlocks[i].classList.remove("block");
+		blocks.splice(i, 1);
+		score++;
+		scoreEl.textContent = score;
+	}
+}
+
 function moveBall() {
 	ballPosition[0] += xDirection;
 	ballPosition[1] += yDirection;
@@ -260,12 +286,10 @@ function checkCollision() {
 				ballPosition[1] >= blocks[i].topLeft[1] &&
 				ballPosition[1] <= blocks[i].topRight[1]
 			) {
-				const allBlocks = Array.from(document.querySelectorAll(".block"));
-				allBlocks[i].classList.remove("block");
-				blocks.splice(i, 1);
+				removeBlock(i);
+
 				changeDirection(false);
-				score++;
-				scoreEl.textContent = score;
+
 				if (score === BLOCKS_NUMBER) {
 					alert("You win!");
 					resetGame();
@@ -280,12 +304,10 @@ function checkCollision() {
 				ballPosition[1] + BALL_SIZE > blocks[i].bottomLeft[1] &&
 				ballPosition[1] < blocks[i].topLeft[1]
 			) {
-				const allBlocks = Array.from(document.querySelectorAll(".block"));
-				allBlocks[i].classList.remove("block");
-				blocks.splice(i, 1);
+				removeBlock(i);
+
 				changeDirection(false);
-				score++;
-				scoreEl.textContent = score;
+
 				if (score === BLOCKS_NUMBER) {
 					alert("You win!");
 					resetGame();
@@ -299,12 +321,10 @@ function checkCollision() {
 			ballPosition[1] + BALL_SIZE > blocks[i].bottomLeft[1] &&
 			ballPosition[1] < blocks[i].topLeft[1]
 		) {
-			const allBlocks = Array.from(document.querySelectorAll(".block"));
-			allBlocks[i].classList.remove("block");
-			blocks.splice(i, 1);
+			removeBlock(i);
+
 			changeDirection();
-			score++;
-			scoreEl.textContent = score;
+
 			if (score === BLOCKS_NUMBER) {
 				alert("You win!");
 				resetGame();
