@@ -91,10 +91,11 @@ function clearGameBoard(ballEl = false) {
 }
 
 function startGame() {
-	if (currentLives == 0) {
+	if (currentLives === 0) {
 		alert("You can't play with no lives! Reset first");
 		return;
 	}
+
 	if (ball && player) {
 		clearGameBoard();
 	}
