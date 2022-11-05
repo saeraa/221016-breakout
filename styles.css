@@ -11,30 +11,33 @@
   -webkit-box-direction: normal;
   -ms-flex-direction: row;
   flex-direction: row;
-  gap: .3rem;
+  gap: .5rem;
   position: absolute;
-  top: -20px;
+  top: -27px;
   left: 10px;
 }
 
 .life {
-  border: 1px solid black;
+  border: 1px solid rgba(0, 0, 0, 0.391);
+  border: 2px solid rgba(0, 0, 0, 0.391);
+  border-radius: 5px;
   width: 50px;
   height: 10px;
-  background-color: rgb(26, 190, 116);
+  background-color: rgb(0, 225, 124);
 }
 
 body {
-  background-color: #848484;
+  background-color: #87807e;
+  padding: .5rem;
 }
 
 .grid {
-  border: 6px double rgb(51, 51, 51);
+  border: 5px solid rgba(52, 2, 2, 0.3);
   width: 560px;
   height: 300px;
   position: relative;
   margin-top: 3rem;
-  background-color: rgb(73, 73, 73);
+  background-color: rgb(74, 66, 55);
   background-clip: content-box;
 }
 
@@ -42,31 +45,34 @@ body {
   position: absolute;
   width: 100px;
   height: 20px;
-  background-color: rgb(177, 47, 47);
-  /* border: outset 3px rgb(151, 48, 48); */
+  background-color: rgb(215, 45, 45);
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
-  -webkit-box-shadow: inset -2px -2px 4px rgb(159, 10, 10);
-  box-shadow: inset -2px -2px 4px rgb(159, 10, 10);
+  -webkit-box-shadow: inset -2px -2px 4px rgba(0, 0, 0, 0.373);
+  box-shadow: inset -2px -2px 4px rgba(0, 0, 0, 0.373);
+  border-radius: 2px;
 }
 
 .orange {
-  -webkit-box-shadow: inset -2px -2px 4px rgb(142, 105, 36);
-  box-shadow: inset -2px -2px 4px rgb(113, 83, 28);
-  background-color: rgb(177, 132, 47);
+  -webkit-box-shadow: inset -2px -2px 4px rgba(0, 0, 0, 0.373);
+  box-shadow: inset -2px -2px 4px rgba(0, 0, 0, 0.373);
+  background-color: rgb(225, 162, 45);
 }
 
 .yellow {
-  -webkit-box-shadow: inset -2px -2px 4px rgb(97, 95, 22);
-  box-shadow: inset -2px -2px 4px rgb(97, 95, 22);
-  background-color: rgb(177, 175, 47);
+  -webkit-box-shadow: inset -2px -2px 4px rgba(0, 0, 0, 0.373);
+  box-shadow: inset -2px -2px 4px rgba(0, 0, 0, 0.373);
+  background-color: rgb(239, 236, 40);
 }
 
 .user {
+  -webkit-box-shadow: inset -2px -2px 4px rgba(0, 0, 0, 0.373);
+  box-shadow: inset -2px -2px 4px rgba(0, 0, 0, 0.373);
   position: absolute;
   width: 100px;
   height: 20px;
-  background-color: rgb(96, 126, 234);
+  background-color: rgb(184, 59, 195);
+  border-radius: 3px;
 }
 
 .ball {
@@ -77,25 +83,35 @@ body {
   background-color: coral;
   border-radius: 50%;
   position: absolute;
-  background: -o-radial-gradient(50% 50%, circle, rgb(206, 0, 0), rgb(255, 92, 33));
-  background: radial-gradient(circle at 50% 50%, rgb(206, 0, 0), rgb(255, 92, 33));
-  -webkit-box-shadow: inset -2px -2px 10px rgb(92, 23, 23), inset 2px 2px 5px rgb(255, 136, 136), 0 0 1px rgb(9, 9, 9), inset 0 0 1px rgb(86, 0, 0);
-  box-shadow: inset -2px -2px 10px rgb(92, 23, 23), inset 2px 2px 5px rgb(255, 136, 136), 0 0 1px rgb(9, 9, 9), inset 0 0 1px rgb(86, 0, 0);
+  background: -o-radial-gradient(50% 50%, circle, rgb(113, 206, 0), rgb(33, 255, 103));
+  background: radial-gradient(circle at 50% 50%, rgb(113, 206, 0), rgb(33, 255, 103));
+  -webkit-box-shadow: inset -2px -2px 10px rgb(23, 92, 67), inset 2px 2px 5px rgb(136, 255, 203), 0 0 1px rgb(9, 9, 9), inset 0 0 1px rgb(0, 86, 72);
+  box-shadow: inset -2px -2px 10px rgb(23, 92, 67), inset 2px 2px 5px rgb(136, 255, 203), 0 0 1px rgb(9, 9, 9), inset 0 0 1px rgb(0, 86, 72);
 }
 
 #score {
   position: absolute;
   right: 20px;
   font-size: 2rem;
-  font-family: cursive;
+  font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
 }
 
 button {
   padding: .5rem 2rem;
-  border: 1px solid black;
+  border: 2px solid rgba(0, 0, 0, 0.208);
   background-color: rgba(0, 0, 0, 0.3);
   color: #fafafa;
-  margin: 10px;
+  margin: 1rem 10px;
+  border-radius: 4px;
+  font-family: 'Courier New', Courier, monospace;
+  cursor: pointer;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+button:hover {
+  background-color: rgba(0, 0, 0, 0.4);
+
 }
 
 button:disabled {

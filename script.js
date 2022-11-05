@@ -38,6 +38,7 @@ startBtn.addEventListener("click", startGame);
 window.addEventListener("load", function () {
 	resetBtn.disabled = true;
 	currentLives = LIVES;
+	drawLives(false, true);
 });
 
 function mouseMoveHandler(e) {
@@ -46,7 +47,7 @@ function mouseMoveHandler(e) {
 	if (relativeX < BLOCK_WIDTH) {
 		currentPosition = [0, 10];
 	} else if (relativeX < BOARD_WIDTH) {
-		currentPosition = [relativeX - BLOCK_WIDTH, 10];
+		currentPosition = [relativeX - BLOCK_WIDTH + 4, 10];
 	}
 
 	drawUser();
@@ -63,37 +64,51 @@ let currentLives;
 let player;
 let ball;
 
-function startGame() {
-	if (ball && player) {
-		ball.remove(".ball");
-		player.remove(".player");
-	}
-	resetBtn.disabled = false;
-	console.log("startGame");
-
-	// ballPosition = BALL_START_POSITION;
-
+function startBallMoving() {
+	xDirection = 2;
+	yDirection = 2;
 	const randomStartPosition = Math.floor(
 		Math.random() * BOARD_WIDTH - BALL_SIZE
 	);
 	ballPosition = [randomStartPosition, 40];
-	currentPosition = USER_START_POSITION;
-	xDirection = 2; // -2 åt vänster, 2 åt höger
-	yDirection = 2;
-	score = 0;
-	// currentLives = LIVES;
-	createUser();
-	document.addEventListener("mousemove", mouseMoveHandler, false);
 	createBall();
-	timerId = setInterval(moveBall, 10); //! -------- START BALL MOVING -----------
+	timerId = setInterval(moveBall, 10);
+}
+
+function clearGameBoard(ballEl = false) {
+	if (ballEl) {
+		ball.remove(".ball");
+		return;
+	}
+	ball.remove(".ball");
+	player.remove(".player");
+	const blocks = [...document.querySelectorAll(".block")];
+	blocks.forEach((block) => {
+		block.remove(".block");
+	});
+}
+
+function startGame() {
+	if (ball && player) {
+		clearGameBoard();
+	}
+	resetBtn.disabled = false;
+	console.log("startGame");
+
+	currentPosition = USER_START_POSITION;
+
+	createUser();
+
+	score = 0;
+	document.addEventListener("mousemove", mouseMoveHandler, false);
+	startBallMoving();
 	createBlocks();
 	drawLives();
 }
 
 function gameOver() {
-	document.removeEventListener("mousemove", mouseMoveHandler, false);
+	// document.removeEventListener("mousemove", mouseMoveHandler, false);
 	clearInterval(timerId);
-	currentLives--;
 
 	// document.removeEventListener("keydown", moveUser); //! REMOVE EVENT LIStener for keyboard
 
@@ -104,30 +119,39 @@ function gameOver() {
 function resetGame() {
 	console.log("resetGame");
 
-	ball.remove(".ball");
-	player.remove(".player");
-
+	clearGameBoard();
+	clearInterval(timerId);
 	timerId = null;
-	xDirection = 2; //! all of this should be uncommented
+	xDirection = 2;
 	yDirection = 2;
 	score = 0;
+	scoreEl.textContent = score;
 	currentLives = LIVES;
+	drawLives(false, true);
 	currentPosition = USER_START_POSITION;
-	ballPosition = BALL_START_POSITION;
-	drawLives();
-	createBlocks();
 }
 
-function drawLives() {
+function drawLives(remove = false, reset = false) {
 	console.log("currentLives", currentLives);
-	console.log("drawLives");
 	const currentLivesEl = [...document.querySelectorAll(".life")];
-	if (currentLives < LIVES) {
-		const amount = document.querySelectorAll(".life").length;
-		document.querySelectorAll(".life")[amount - 1].classList.remove("life");
+
+	if (remove) {
+		clearInterval(timerId);
+		const amount = currentLivesEl.length;
+		currentLivesEl[amount - 1].classList.remove("life");
+		if (currentLives > 0) {
+			setTimeout(() => {
+				scoreEl.textContent = score;
+				clearGameBoard(true);
+				startBallMoving();
+			}, 300);
+		}
+		return;
 	} else if (currentLivesEl.length == 3) {
 		return;
-	} else {
+	} else if (reset) {
+		currentLivesEl.forEach((life) => life.remove(".life"));
+
 		for (let i = 0; i < currentLives; i++) {
 			const life = document.createElement("div");
 			life.classList.add("life");
@@ -146,12 +170,6 @@ class Block {
 }
 
 function createBlocks() {
-	const blOCKS = [...document.querySelectorAll(".block")];
-	blOCKS.forEach((block) => {
-		block.remove(".block");
-	});
-	console.log(blOCKS);
-
 	blocks.length = 0;
 	for (let i = 0; i < BLOCKS_NUMBER; i++) {
 		let x = blocksPositionArray[i][0];
@@ -159,14 +177,10 @@ function createBlocks() {
 		blocks.push(new Block(x, y));
 	}
 
-	console.log("createBlocks second");
 	addBlocks();
 }
 
-15 / 0, 6;
-
 function addBlocks() {
-	console.log("addblocks");
 	for (let i = 0; i < BLOCKS_NUMBER; i++) {
 		const block = document.createElement("div");
 		block.classList.add("block");
@@ -184,7 +198,6 @@ function addBlocks() {
 }
 
 function createUser() {
-	console.log("createUser");
 	player = document.createElement("div");
 	grid.appendChild(player);
 	player.classList.add("user");
@@ -192,7 +205,6 @@ function createUser() {
 }
 
 function createBall() {
-	console.log("createBall");
 	ball = document.createElement("div");
 	grid.appendChild(ball);
 	ball.classList.add("ball");
@@ -200,13 +212,11 @@ function createBall() {
 }
 
 function drawUser() {
-	console.log("drawUser");
 	player.style.left = currentPosition[0] + "px";
 	player.style.bottom = currentPosition[1] + "px";
 }
 
 function drawBall() {
-	console.log("drawBall");
 	ball.style.left = ballPosition[0] + "px";
 	ball.style.bottom = ballPosition[1] + "px";
 }
@@ -292,7 +302,7 @@ function checkCollision() {
 				changeDirection(false);
 
 				if (score === BLOCKS_NUMBER) {
-					alert("You win!");
+					alert("You win! 🥳");
 					resetGame();
 				}
 				return;
@@ -310,7 +320,7 @@ function checkCollision() {
 				changeDirection(false);
 
 				if (score === BLOCKS_NUMBER) {
-					alert("You win!");
+					alert("You win! 🥳");
 					resetGame();
 				}
 				return;
@@ -327,7 +337,7 @@ function checkCollision() {
 			changeDirection();
 
 			if (score === BLOCKS_NUMBER) {
-				alert("You win!");
+				alert("You win! 🥳");
 				resetGame();
 			}
 			return;
@@ -356,7 +366,7 @@ function checkCollision() {
 
 	//gameboard
 	if (
-		ballPosition[0] >= BOARD_WIDTH - BALL_SIZE ||
+		ballPosition[0] >= BOARD_WIDTH - BALL_SIZE + 1 ||
 		//ballPosition[1] >= BOARD_HEIGHT - BALL_SIZE || //* when bollens position y är större eller lika med board height minus bollens diameter
 		ballPosition[0] <= 0
 	) {
@@ -365,15 +375,14 @@ function checkCollision() {
 	}
 	if (ballPosition[1] >= BOARD_HEIGHT - BALL_SIZE) {
 		changeDirection(false);
-		//!changeDirection(false);
 		return;
 	}
 
-	if (ballPosition[1] < BLOCK_HEIGHT) {
-		// --currentLives;
-		// drawLives();
+	if (ballPosition[1] <= 0) {
+		--currentLives;
+		drawLives(true);
 		gameOver();
-		scoreEl.innerText = "You lose";
+		scoreEl.innerText = "You lose 🥺";
 	}
 }
 
@@ -383,22 +392,18 @@ function changeDirection(defaultDirection = true) {
 	if (defaultDirection) {
 		if (xDirection === 2 && yDirection === 2) {
 			xDirection = -2;
-			// console.log("true: 2, 2");
 			return;
 		}
 		if (xDirection === 2 && yDirection === -2) {
 			xDirection = -2;
-			// console.log("true: 2, -2");
 			return;
 		}
 		if (xDirection === -2 && yDirection === -2) {
 			xDirection = 2;
-			// console.log("true: -2, -2");
 			return;
 		}
 		if (xDirection === -2 && yDirection === 2) {
 			xDirection = 2;
-			// console.log("true: -2, 2");
 			return;
 		}
 	} else if (!defaultDirection) {
