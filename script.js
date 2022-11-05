@@ -1,29 +1,29 @@
 const blocksPositionArray = [
-	[10, 270],
-	[120, 270],
-	[230, 270],
+	[10, 270], // (padding) , (BOARD_HEIGHT - BLOCK_HEIGHT - padding)
+	[120, 270], // (padding + BOARD_WIDTH + padding) , (BOARD_HEIGHT - BLOCK_HEIGHT)
+	[230, 270], // (padding + BOARD_WIDTH + padding + BOARD_WIDTH + padding)
 	[340, 270],
 	[450, 270],
-	[10, 240],
-	[120, 240],
+	[10, 240], // (padding) , (BOARD_HEIGHT - BLOCK_HEIGHT - padding - BLOCK_HEIGHT - padding)
+	[120, 240], // (padding + BOARD_WIDTH + padding) , (BOARD_HEIGHT - BLOCK_HEIGHT - padding - BLOCK_HEIGHT - padding)
 	[230, 240],
 	[340, 240],
 	[450, 240],
-	[10, 210],
-	[120, 210],
+	[10, 210], // (padding) , (BOARD_HEIGHT - BLOCK_HEIGHT - padding - BLOCK_HEIGHT - padding - BLOCK_HEIGHT - padding)
+	[120, 210], // (padding + BOARD_WIDTH + padding) , (BOARD_HEIGHT - BLOCK_HEIGHT - padding - BLOCK_HEIGHT - padding - BLOCK_HEIGHT - padding)
 	[230, 210],
 	[340, 210],
 	[450, 210]
 ];
-const BLOCK_WIDTH = 100;
-const BLOCK_HEIGHT = 20;
+// const PADDING = 10; // TODO: if replacing above array with calculated values
+const BLOCK_WIDTH = 100; // also used for PADDLE_WIDTH
+const BLOCK_HEIGHT = 20; // also used for PADDLE_HEIGHT
 const BOARD_WIDTH = 560;
 const BOARD_HEIGHT = 300;
 const BALL_SIZE = 20;
 const LIVES = 3;
 const BLOCKS_NUMBER = 15;
-//const BALL_START_POSITION = [0, 190]; //!!!! CHANGING THIS
-const BALL_START_POSITION = [270, 40]; // CHANGING THIS (old value here)
+const BALL_START_POSITION = [270, 40]; // middle of the board, above the paddle
 const USER_START_POSITION = [230, 10];
 const blocks = [];
 const INITIAL_INTERVAL = 10;
@@ -56,7 +56,6 @@ function mouseMoveHandler(e) {
 
 let ballPosition;
 let currentPosition;
-
 let timerId;
 let xDirection; // -2 åt vänster, 2 åt höger
 let yDirection; // -2 neråt, 2 uppåt
@@ -65,6 +64,15 @@ let currentLives;
 let player;
 let ball;
 let interval;
+
+class Block {
+	constructor(xAxis, yAxis) {
+		this.bottomLeft = [xAxis, yAxis];
+		this.bottomRight = [xAxis + BLOCK_WIDTH, yAxis];
+		this.topLeft = [xAxis, yAxis + BLOCK_HEIGHT];
+		this.topRight = [xAxis + BLOCK_WIDTH, yAxis + BLOCK_HEIGHT];
+	}
+}
 
 function startBallMoving() {
 	xDirection = 2;
@@ -79,11 +87,11 @@ function startBallMoving() {
 
 function clearGameBoard(ballEl = false) {
 	if (ballEl) {
-		ball.remove(".ball");
+		ball.remove(".ball"); //! replace with deleting div, not class
 		return;
 	}
-	ball.remove(".ball");
-	player.remove(".player");
+	ball.remove(".ball"); //! replace with deleting div, not class
+	player.remove(".player"); //! replace with deleting div, not class
 	const blocks = [...document.querySelectorAll(".block")];
 	blocks.forEach((block) => {
 		block.remove(".block");
@@ -172,15 +180,6 @@ function drawLives(remove = false, reset = false) {
 	}
 }
 
-class Block {
-	constructor(xAxis, yAxis) {
-		this.bottomLeft = [xAxis, yAxis];
-		this.bottomRight = [xAxis + BLOCK_WIDTH, yAxis];
-		this.topLeft = [xAxis, yAxis + BLOCK_HEIGHT];
-		this.topRight = [xAxis + BLOCK_WIDTH, yAxis + BLOCK_HEIGHT];
-	}
-}
-
 function createBlocks() {
 	blocks.length = 0;
 	for (let i = 0; i < BLOCKS_NUMBER; i++) {
@@ -198,6 +197,7 @@ function addBlocks() {
 		block.classList.add("block");
 
 		// lägg till gul på första 1/3, orange på 2/3, röd på sista
+		// TODO: mer generiska klasser? "three", "two", "one"?
 		if (i < BLOCKS_NUMBER / 3) {
 			block.classList.add("yellow");
 		} else if (i < (BLOCKS_NUMBER / 3) * 2) {
@@ -283,7 +283,7 @@ function moveBall() {
 }
 
 function checkCollision() {
-	//user
+	//* user
 	if (
 		ballPosition[0] > currentPosition[0] &&
 		ballPosition[0] < currentPosition[0] + BLOCK_WIDTH &&
@@ -294,20 +294,7 @@ function checkCollision() {
 		return;
 	}
 
-	//blocks
-
-	//? this is what I'm trying to solve atm:
-	//? when ball collides with the bottom or top sides of a block, it should bounce changeDirection(false)
-	/* 
-    when ball position is between [block topRight - topLeft]
-
-    if (ballPosition[0] > (blocks[i].topRight - blocks[i].topLeft) &&
-    ballPosition[1] === )
-
-    if ball X position is between block's bottomLeft[0] och bottomRight [0]
-    AND
-    if ball Y is ...
-  */
+	//* blocks
 	for (let i = 0; i < blocks.length; i++) {
 		if (yDirection == -2) {
 			if (
@@ -362,28 +349,8 @@ function checkCollision() {
 			return;
 		}
 	}
-	// for (let i = 0; i < blocks.length; i++) {
-	// 	if (
-	// 		ballPosition[0] > blocks[i].bottomLeft[0] &&
-	// 		ballPosition[0] < blocks[i].bottomRight[0] &&
-	// 		ballPosition[1] + BALL_SIZE > blocks[i].bottomLeft[1] &&
-	// 		ballPosition[1] < blocks[i].topLeft[1]
-	// 	) {
-	// 		const allBlocks = Array.from(document.querySelectorAll(".block"));
-	// 		allBlocks[i].classList.remove("block");
-	// 		blocks.splice(i, 1);
-	// 		changeDirection();
-	// 		score++;
-	// 		scoreEl.textContent = score;
-	// 		if (score === BLOCKS_NUMBER) {
-	// 			alert("You win!");
-	// 			resetGame();
-	// 		}
-	// 		return;
-	// 	}
-	// }
 
-	//gameboard
+	//* gameboard
 	if (
 		ballPosition[0] >= BOARD_WIDTH - BALL_SIZE + 1 ||
 		//ballPosition[1] >= BOARD_HEIGHT - BALL_SIZE || //* when bollens position y är större eller lika med board height minus bollens diameter
@@ -409,8 +376,8 @@ function checkCollision() {
 }
 
 function changeDirection(defaultDirection = true) {
-	// kommer från höger och uppåt och träffar sidan
-
+	// X: -2 åt vänster, 2 åt höger
+	// Y: -2 neråt, 2 uppåt
 	if (defaultDirection) {
 		if (xDirection === 2 && yDirection === 2) {
 			xDirection = -2;
@@ -447,6 +414,3 @@ function changeDirection(defaultDirection = true) {
 		}
 	}
 }
-
-// X: -2 åt vänster, 2 åt höger
-// Y: -2 neråt, 2 uppåt
