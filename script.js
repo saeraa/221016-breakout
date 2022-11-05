@@ -26,6 +26,7 @@ const BLOCKS_NUMBER = 15;
 const BALL_START_POSITION = [270, 40]; // CHANGING THIS (old value here)
 const USER_START_POSITION = [230, 10];
 const blocks = [];
+const INITIAL_INTERVAL = 10;
 
 const grid = document.querySelector(".grid");
 const scoreEl = document.querySelector("#score");
@@ -63,16 +64,17 @@ let score;
 let currentLives;
 let player;
 let ball;
+let interval;
 
 function startBallMoving() {
 	xDirection = 2;
 	yDirection = 2;
-	const randomStartPosition = Math.floor(
-		Math.random() * BOARD_WIDTH - BALL_SIZE
-	);
+	const randomStartPosition =
+		Math.floor(Math.random() * BOARD_WIDTH - BALL_SIZE) + 10;
+	console.log(randomStartPosition);
 	ballPosition = [randomStartPosition, 40];
 	createBall();
-	timerId = setInterval(moveBall, 10);
+	timerId = setInterval(moveBall, interval);
 }
 
 function clearGameBoard(ballEl = false) {
@@ -89,6 +91,10 @@ function clearGameBoard(ballEl = false) {
 }
 
 function startGame() {
+	if (currentLives == 0) {
+		alert("You can't play with no lives! Reset first");
+		return;
+	}
 	if (ball && player) {
 		clearGameBoard();
 	}
@@ -100,7 +106,9 @@ function startGame() {
 	createUser();
 
 	score = 0;
+	interval = INITIAL_INTERVAL;
 	document.addEventListener("mousemove", mouseMoveHandler, false);
+	console.log("startGame, interval: ", interval);
 	startBallMoving();
 	createBlocks();
 	drawLives();
@@ -109,6 +117,9 @@ function startGame() {
 function gameOver() {
 	// document.removeEventListener("mousemove", mouseMoveHandler, false);
 	clearInterval(timerId);
+	interval = INITIAL_INTERVAL;
+	console.log("gameOver, interval: ", interval);
+	// timerId = setInterval(moveBall, interval);
 
 	// document.removeEventListener("keydown", moveUser); //! REMOVE EVENT LIStener for keyboard
 
@@ -253,6 +264,13 @@ function removeBlock(i) {
 		blocks.splice(i, 1);
 		score++;
 		scoreEl.textContent = score;
+		if (interval < 1) {
+			return;
+		}
+		interval--;
+		clearInterval(timerId);
+		timerId = setInterval(moveBall, interval);
+		console.log("score++, interval: ", interval);
 	}
 }
 
@@ -379,8 +397,11 @@ function checkCollision() {
 	}
 
 	if (ballPosition[1] <= 0) {
-		--currentLives;
-		drawLives(true);
+		if (currentLives != 0) {
+			--currentLives;
+			drawLives(true);
+		}
+		clearInterval(timerId);
 		gameOver();
 		scoreEl.innerText = "You lose 🥺";
 	}
