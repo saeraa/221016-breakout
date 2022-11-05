@@ -15,16 +15,18 @@ const blocksPositionArray = [
 	[340, 210],
 	[450, 210]
 ];
+// const BLOCK_ROWS = 3;
+// const BLOCK_COLUMNS = 5;
 // const PADDING = 10; // TODO: if replacing above array with calculated values
 const BLOCK_WIDTH = 100; // also used for PADDLE_WIDTH
 const BLOCK_HEIGHT = 20; // also used for PADDLE_HEIGHT
-const BOARD_WIDTH = 560;
-const BOARD_HEIGHT = 300;
+const BOARD_WIDTH = 560; // PADDING * (BLOCK_COLUMNS + 1) + (BLOCK_COLUMNS * BLOCK_WIDTH)
+const BOARD_HEIGHT = 300; // 210px + (BLOCK_ROWS*BLOCK_HEIGHT) + (BLOCK_ROWS*PADDING)
 const BALL_SIZE = 20;
 const LIVES = 3;
-const BLOCKS_NUMBER = 15;
+const BLOCKS_NUMBER = 15; // BLOCK_ROWS * BLOCK_COLUMNS
 const BALL_START_POSITION = [270, 40]; // middle of the board, above the paddle
-const USER_START_POSITION = [230, 10];
+const USER_START_POSITION = [230, 10]; // (BOARD_WIDTH / 2) - (PADDLE_WIDTH / 2) , PADDING
 const blocks = [];
 const INITIAL_INTERVAL = 10;
 
